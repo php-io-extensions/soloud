@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: PHP ${{ matrix.php }} ${{ matrix.ts }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+        php: ['8.4', '8.5']
+        ts: [nts, zts]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+        env:
+          phpts: ${{ matrix.ts == 'zts' && 'ts' || 'nts' }}
+
+      - name: Build
+        # SoLoud is vendored under lib/soloud/ and compiled into the module. Its miniaudio backend dlopens the
+        # Linux audio libraries at run time, so the build needs no audio packages.
+        run: |
+          phpize
+          ./configure --enable-soloud
+          make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
+
+      - name: Load
+        run: |
+          php -n -d extension="$PWD/modules/soloud.so" -r 'exit(extension_loaded("soloud") ? 0 : 1);'
+          php -n -d extension="$PWD/modules/soloud.so" --ri soloud
+
+      - name: Test
+        # The shutdown and probe tests spawn child PHP processes, so the module is enabled through an extra
+        # ini scan directory that every process inherits rather than a -d flag only the parent sees. Engines
+        # use the null backend; the real-mixer test skips where miniaudio finds no output device.
+        run: |
+          composer install --no-interaction --no-progress
+          mkdir -p "$RUNNER_TEMP/php-ini"
+          echo "extension=$PWD/modules/soloud.so" > "$RUNNER_TEMP/php-ini/soloud.ini"
+          PHP_INI_SCAN_DIR=":$RUNNER_TEMP/php-ini" php -d memory_limit=128M vendor/bin/pest --ci
