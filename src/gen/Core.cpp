@@ -1593,6 +1593,10 @@ ZEND_METHOD(SoLoud_Soloud, play)
 		RETURN_THROWS();
 	}
 	char why[192];
+	if (!SOLOUD_PROBE_OFF("soloud-soloud-play-not-initialised") && !soloud_engine_initialised(self, why, sizeof why)) {
+		zend_value_error("%s", why); /* binding:soloud-soloud-play-not-initialised */
+		RETURN_THROWS();
+	}
 	if (!SOLOUD_PROBE_OFF("soloud-soloud-play-filter-channels") && !soloud_voice_filters_fit(&*a0, why, sizeof why)) {
 		zend_value_error("%s", why); /* binding:soloud-soloud-play-filter-channels */
 		RETURN_THROWS();
@@ -1632,6 +1636,10 @@ ZEND_METHOD(SoLoud_Soloud, playClocked)
 		RETURN_THROWS();
 	}
 	char why[192];
+	if (!SOLOUD_PROBE_OFF("soloud-soloud-playclocked-not-initialised") && !soloud_engine_initialised(self, why, sizeof why)) {
+		zend_value_error("%s", why); /* binding:soloud-soloud-playclocked-not-initialised */
+		RETURN_THROWS();
+	}
 	if (!SOLOUD_PROBE_OFF("soloud-soloud-playclocked-filter-channels") && !soloud_voice_filters_fit(&*a1, why, sizeof why)) {
 		zend_value_error("%s", why); /* binding:soloud-soloud-playclocked-filter-channels */
 		RETURN_THROWS();
@@ -1681,6 +1689,10 @@ ZEND_METHOD(SoLoud_Soloud, play3d)
 		RETURN_THROWS();
 	}
 	char why[192];
+	if (!SOLOUD_PROBE_OFF("soloud-soloud-play3d-not-initialised") && !soloud_engine_initialised(self, why, sizeof why)) {
+		zend_value_error("%s", why); /* binding:soloud-soloud-play3d-not-initialised */
+		RETURN_THROWS();
+	}
 	if (!SOLOUD_PROBE_OFF("soloud-soloud-play3d-filter-channels") && !soloud_voice_filters_fit(&*a0, why, sizeof why)) {
 		zend_value_error("%s", why); /* binding:soloud-soloud-play3d-filter-channels */
 		RETURN_THROWS();
@@ -1730,6 +1742,10 @@ ZEND_METHOD(SoLoud_Soloud, play3dClocked)
 		RETURN_THROWS();
 	}
 	char why[192];
+	if (!SOLOUD_PROBE_OFF("soloud-soloud-play3dclocked-not-initialised") && !soloud_engine_initialised(self, why, sizeof why)) {
+		zend_value_error("%s", why); /* binding:soloud-soloud-play3dclocked-not-initialised */
+		RETURN_THROWS();
+	}
 	if (!SOLOUD_PROBE_OFF("soloud-soloud-play3dclocked-filter-channels") && !soloud_voice_filters_fit(&*a1, why, sizeof why)) {
 		zend_value_error("%s", why); /* binding:soloud-soloud-play3dclocked-filter-channels */
 		RETURN_THROWS();
@@ -1767,6 +1783,10 @@ ZEND_METHOD(SoLoud_Soloud, playBackground)
 		RETURN_THROWS();
 	}
 	char why[192];
+	if (!SOLOUD_PROBE_OFF("soloud-soloud-playbackground-not-initialised") && !soloud_engine_initialised(self, why, sizeof why)) {
+		zend_value_error("%s", why); /* binding:soloud-soloud-playbackground-not-initialised */
+		RETURN_THROWS();
+	}
 	if (!SOLOUD_PROBE_OFF("soloud-soloud-playbackground-filter-channels") && !soloud_voice_filters_fit(&*a0, why, sizeof why)) {
 		zend_value_error("%s", why); /* binding:soloud-soloud-playbackground-filter-channels */
 		RETURN_THROWS();

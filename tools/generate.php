@@ -31,11 +31,16 @@ $report = [];
 
 // A check is emitted once bindings.json registers its site: the guard refuses a marker without one.
 $sites = json_decode(file_get_contents("$root/bindings.json"), true, flags: JSON_THROW_ON_ERROR)['sites'];
-foreach ($cfg['checks'] as $key => [$site]) {
-    if (! isset($sites[$site])) {
-        unset($cfg['checks'][$key]);
-        $report[] = "$key: check $site not emitted, site not in bindings.json";
+// A method's checks: one [site, fit] pair, or a list of them, emitted in order.
+foreach ($cfg['checks'] as $key => $list) {
+    $list = is_string($list[0]) ? [$list] : $list;
+    foreach ($list as $i => [$site]) {
+        if (! isset($sites[$site])) {
+            unset($list[$i]);
+            $report[] = "$key: check $site not emitted, site not in bindings.json";
+        }
     }
+    $cfg['checks'][$key] = array_values($list);
 }
 
 function php_name(string $fq): string
@@ -299,10 +304,12 @@ function bind_call(array $m, string $owner, ?string $fq, array $api, array $boun
     $native = array_combine(array_column($m['params'], 'name'), $args);
     $expand = fn (string $t) => preg_replace_callback('/\$(\w+)/', fn ($x) => $native[$x[1]], $t);
     $key = ($fq ?? $owner).'::'.$m['name'];
-    if (isset($checks[$key])) {
-        [$site, $fit] = $checks[$key];
-        $body .= "\tchar why[192];\n\tif (!SOLOUD_PROBE_OFF(\"$site\") && !".$expand($fit).") {\n"
-            ."\t\tzend_value_error(\"%s\", why); /* binding:$site */\n\t\tRETURN_THROWS();\n\t}\n";
+    if (($checks[$key] ?? []) !== []) {
+        $body .= "\tchar why[192];\n";
+        foreach ($checks[$key] as [$site, $fit]) {
+            $body .= "\tif (!SOLOUD_PROBE_OFF(\"$site\") && !".$expand($fit).") {\n"
+                ."\t\tzend_value_error(\"%s\", why); /* binding:$site */\n\t\tRETURN_THROWS();\n\t}\n";
+        }
     }
     foreach ($bufCode as $i => $expr) {
         $size = preg_replace_callback('/\$(\w+)/', fn ($x) => '(size_t) '.$cvars[$x[1]], $expr);

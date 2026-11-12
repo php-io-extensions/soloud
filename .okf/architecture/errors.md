@@ -30,6 +30,7 @@ refusal: a call SoLoud does not check that would crash.[^bindings]
 |-------|---------|-------|
 | `*-loadmem-length`, `*-loadrawwave*-length`, `sfxr-loadparamsmem-length`, `memoryfile-openmem-length` | a length past the PHP string | read past the string |
 | `soloud-mix-samples`, `soloud-mixsigned16-samples` | more samples than the engine's scratch (none before `init()`) | heap overflow |
+| `soloud-*play*-not-initialised` | `Soloud::play*` before an `init()` succeeded | stopping the voice (stop, stopAll, a destructor, shutdown) reads the NULL `mResampleDataOwner` |
 | `filterinstance-filter-channels`, `filterinstance-filterchannel-channels` | more channels than the instance's state, a channel past the count, an FFT instance with no parent | write past the state |
 | `fftfilterinstance-*-state` | an FFT helper before `filterChannel()` allocated its state, past its channels, past 256 samples | NULL or past-the-end read (`SoLoudException`) |
 | `filterinstance-initparams-count` | a count below the instance's, or above 256 | read past `mParam`; abort |

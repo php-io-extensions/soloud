@@ -119,6 +119,8 @@ void soloud_unhold(soloud_object *obj, const char *role);
  * The fit checks: false, with why, when the mixer would run past that state.
  */
 bool soloud_voice_filters_fit(SoLoud::AudioSource *aSound, char *why, size_t size);
+/* False, with why, before an init() succeeded: postinit allocates the resample owners a voice's stop reads. */
+bool soloud_engine_initialised(SoLoud::Soloud *self, char *why, size_t size);
 bool soloud_global_filter_fits(SoLoud::Soloud *self, unsigned int aFilterId, SoLoud::Filter *aFilter, char *why, size_t size);
 bool soloud_init_filters_fit(soloud_object *obj, SoLoud::Soloud *self, unsigned int aChannels, char *why, size_t size);
 /* Thread::Pool::addWork: a task to run (a pool without threads runs it at once, without a check). */

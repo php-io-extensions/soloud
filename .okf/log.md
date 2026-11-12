@@ -1,5 +1,10 @@
 # Log
 
+## 2026-11-13
+
+* CI (Ubuntu, no sound card): `Soloud::play()` after a failed `init()` returned a voice, and request shutdown segfaulted stopping it: `stopVoice_internal` reads `mResampleDataOwner`, which only a successful init allocates. Refused on the five `Soloud::play*` (sites `soloud-soloud-*-not-initialised`, probes in `tests/Probes/NotInitialisedTest.php`). `Bus::play*` reaches the engine only through a voice the bus already holds, so it needs none.
+* Test children load the module a scanned ini loads (CI's `PHP_INI_SCAN_DIR`), not only `extension_dir/soloud.so`.
+
 ## 2026-11-12
 
 * `SUPPORT.md` (`scripts/support.php`, from `tools/api.json`): 789 / 789 members bound. `tests/CoverageTest.php` runs `--check`.

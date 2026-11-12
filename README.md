@@ -164,6 +164,7 @@ The extension declines a call only where SoLoud would read or write memory it do
 
 - a length past the PHP string, in every `loadMem` / `loadRawWave*` / `openMem`;
 - `Soloud::mix()` / `mixSigned16()` asking for more samples than the engine's scratch, or before `init()`;
+- `Soloud::play*()` on an engine whose `init()` has not succeeded (SoLoud makes the voice, and stopping it later reads state only a successful `init()` allocates);
 - a filter instance called with more channels than its state was built for, an FFT helper before its state exists, `FilterInstance::initParams()` below its parameter count;
 - playing a source with more than 2 channels through a `LofiFilter`, a `LofiFilter` as a global filter on an engine with more than 2 channels, and `init()` with more channels than a global filter's state holds;
 - reading or loading through a `File` that is not open;

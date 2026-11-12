@@ -437,6 +437,15 @@ static bool soloud_engine_live(SoLoud::Soloud *self)
 	return self->mAudioThreadMutex != NULL;
 }
 
+bool soloud_engine_initialised(SoLoud::Soloud *self, char *why, size_t size)
+{
+	if (self->mResampleDataOwner == NULL) {
+		snprintf(why, size, "The engine has not been initialised: init() has not succeeded, and a voice played now cannot be stopped");
+		return false;
+	}
+	return true;
+}
+
 bool soloud_voice_filters_fit(SoLoud::AudioSource *aSound, char *why, size_t size)
 {
 	if (aSound == NULL || aSound->mChannels <= 2) {

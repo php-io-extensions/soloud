@@ -215,14 +215,32 @@ return [
 
     // Calls after which one object points at another. method => [param, role, holder]: holder 'param'
     // keeps $this alive under role; holder 'this' keeps the param alive.
-    // Kept refusals in front of a generated call: method => [site, fit check]. The check fills why and returns
-    // false to refuse; $name is the native argument for that parameter. src/runtime.cpp holds the checks.
+    // Kept refusals in front of a generated call: method => [site, fit check], or a list of them, checked in
+    // order. The check fills why and returns false to refuse; $name is the native argument for that parameter.
+    // src/runtime.cpp holds the checks.
+    // Soloud::play* before a successful init(): the voice is created, but stopping it (stop(), stopAll(), the
+    // source's or engine's destructor) reads mResampleDataOwner, which only postinit allocates.
     'checks' => [
-        'SoLoud::Soloud::play' => ['soloud-soloud-play-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
-        'SoLoud::Soloud::playClocked' => ['soloud-soloud-playclocked-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
-        'SoLoud::Soloud::play3d' => ['soloud-soloud-play3d-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
-        'SoLoud::Soloud::play3dClocked' => ['soloud-soloud-play3dclocked-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
-        'SoLoud::Soloud::playBackground' => ['soloud-soloud-playbackground-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
+        'SoLoud::Soloud::play' => [
+            ['soloud-soloud-play-not-initialised', 'soloud_engine_initialised(self, why, sizeof why)'],
+            ['soloud-soloud-play-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
+        ],
+        'SoLoud::Soloud::playClocked' => [
+            ['soloud-soloud-playclocked-not-initialised', 'soloud_engine_initialised(self, why, sizeof why)'],
+            ['soloud-soloud-playclocked-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
+        ],
+        'SoLoud::Soloud::play3d' => [
+            ['soloud-soloud-play3d-not-initialised', 'soloud_engine_initialised(self, why, sizeof why)'],
+            ['soloud-soloud-play3d-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
+        ],
+        'SoLoud::Soloud::play3dClocked' => [
+            ['soloud-soloud-play3dclocked-not-initialised', 'soloud_engine_initialised(self, why, sizeof why)'],
+            ['soloud-soloud-play3dclocked-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
+        ],
+        'SoLoud::Soloud::playBackground' => [
+            ['soloud-soloud-playbackground-not-initialised', 'soloud_engine_initialised(self, why, sizeof why)'],
+            ['soloud-soloud-playbackground-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
+        ],
         'SoLoud::Bus::play' => ['soloud-bus-play-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
         'SoLoud::Bus::playClocked' => ['soloud-bus-playclocked-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],
         'SoLoud::Bus::play3d' => ['soloud-bus-play3d-filter-channels', 'soloud_voice_filters_fit(&$aSound, why, sizeof why)'],

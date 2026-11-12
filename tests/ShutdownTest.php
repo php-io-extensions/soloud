@@ -113,7 +113,9 @@ $phpLive = fn (string $order, string $backend) => <<<PHP
             'filter' => new ShutFilter(),
         };
     }
-    \$o['engine']->init(SoLoud\Soloud::CLIP_ROUNDOFF, SoLoud\Soloud::$backend, 44100, 1024, 2);
+    if (\$o['engine']->init(SoLoud\Soloud::CLIP_ROUNDOFF, SoLoud\Soloud::$backend, 44100, 1024, 2) !== 0) {
+        return 'no audio device';
+    }
     \$o['source']->setFilter(0, \$o['filter']);
     \$o['engine']->play(\$o['source'], 0.0);
     \$buffer = '';
@@ -128,6 +130,9 @@ PHP;
 
 it('exits cleanly with an engine and a playing Wav live', function (string $code) {
     $run = soloudChild($code);
+    if ($run['result'] === 'no audio device') {
+        $this->markTestSkipped('no audio device');
+    }
 
     expect($run['threw'])->toBeNull()
         ->and($run['result'])->toBeTrue()
