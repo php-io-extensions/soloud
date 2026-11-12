@@ -32,12 +32,23 @@ function soloudProbe(): void
     }
 }
 
-/** The .so a child process loads: env SOLOUD_PROBE_EXT, else the file in this PHP's extension_dir. */
+/**
+ * The .so a child process loads: env SOLOUD_PROBE_EXT; else the path a scanned ini loads it by (a build enabled
+ * through PHP_INI_SCAN_DIR, as CI does); else the file in this PHP's extension_dir.
+ */
 function soloudExtension(): string
 {
     $given = getenv('SOLOUD_PROBE_EXT');
+    if (is_string($given) && $given !== '') {
+        return $given;
+    }
+    foreach (array_filter(array_map('trim', explode(',', (string) php_ini_scanned_files()))) as $ini) {
+        if (preg_match('/^\s*extension\s*=\s*"?(\/[^"\s]*soloud\.so)"?\s*$/m', (string) @file_get_contents($ini), $m) && is_file($m[1])) {
+            return $m[1];
+        }
+    }
 
-    return is_string($given) && $given !== '' ? $given : ini_get('extension_dir').'/soloud.so';
+    return ini_get('extension_dir').'/soloud.so';
 }
 
 /**
